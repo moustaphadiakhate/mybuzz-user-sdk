@@ -1,0 +1,15 @@
+body {
+  background-color: rgb(121, 106, 106);
+}
+
+.page {
+  height: 100%;
+  position: absolute;
+  width: 100%;
+}
+
+.login {
+}
+
+.chat {
+}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>My Buzz Messaging</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body>
+    <h1>My Buzz Messaging communications</h1>
+    <div id="chatPage" class="page chat">
+      <p>
+        <input type="text" id="text" placeholder="send a tex message" />
+        <input type="button" value="Envoyer" id="text_button" />
+      </p>
+      <p><input type="button" value="Envoter un audio" id="audio" /></p>
+      <p><input type="button" value="Envoyer une image" id="image" /></p>
+      <p><input type="button" value="Envoyer une video" id="video" /></p>
+    </div>
+    <div id="loginPage" class="page login">
+      <label for="Username">Username</label><input id="user" type="text" />
+      <label for="password">Password</label><input id="pass" type="password" />
+      <button id="login">Envoter</button>
+    </div>
+
+    <script src="./vendors/jquery.js"></script>
+    <script src="./index.js"></script>
+
+  </body>
+</html>
