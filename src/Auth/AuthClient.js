@@ -32,13 +32,14 @@ class AuthClient {
 
   async create(entityType, entityParams) {
     const { api } = this;
-    const response = await api.post(`/${entityType}`, entityParams, {
-      headers: {
-        Authorization: `Bearer ${await this.tokens.get('ACCOUNT_VERIFICATION')}`
+    const response = await api.post(`/${entityType}`, entityParams);
+      handleResponseError(response);
+      const result = response.data;
+      if (result.token) {
+        const tokenInfos = pick(result, ['token', 'expiresIn', 'refreshToken']);
+        this.tokens.put('ACCOUNT_VERIFICATION', tokenInfos);
       }
-    });
-    handleResponseError(response);
-    return response.data;
+      return result.verified;
   }
 
   /**
@@ -150,7 +151,7 @@ class AuthClient {
     handleResponseError(response);
     const result = response.data;
     if (result.token) {
-      const tokenInfos = pick(result, ['token', 'expiry', 'refreshToken']);
+      const tokenInfos = pick(result, ['token', 'expiresIn', 'refreshToken']);
       this.tokens.put('ACCOUNT_VERIFICATION', tokenInfos);
     }
     return result.verified;

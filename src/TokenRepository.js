@@ -26,7 +26,7 @@ class TokenRepository {
    */
   async getNewToken(refreshToken) {
     const response = await this.api.post(
-      '/tokens/refresh',
+      '/refreshtoken',
       {},
       {
         headers: {
@@ -34,8 +34,8 @@ class TokenRepository {
         }
       }
     );
-    const { token, expiry } = response.data;
-    return { token, expiry };
+    const { token, expiresIn } = response.data;
+    return { token, expiresIn };
   }
 
   async get(key) {
@@ -46,11 +46,11 @@ class TokenRepository {
     if (!tokenInfos) {
       return;
     }
-    const { expiry, refreshToken } = tokenInfos;
-    if (moment(expiry).isBefore(moment())) {
-      const { token, expiry } = await this.getNewToken(refreshToken);
+    const { expiresIn, refreshToken } = tokenInfos;
+    if (moment(expiresIn).isBefore(moment())) {
+      const { token, expiresIn } = await this.getNewToken(refreshToken);
       tokenInfos.token = token;
-      tokenInfos.expiry = expiry;
+      tokenInfos.expiresIn = expiresIn;
       this.emit('update', this.tokens);
     }
     return tokenInfos.token;
