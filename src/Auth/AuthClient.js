@@ -38,7 +38,7 @@ class AuthClient {
       }
     });
     handleResponseError(response);
-    return response;
+    return response.data;
   }
 
   /**
@@ -59,7 +59,7 @@ class AuthClient {
       }
     );
     handleResponseError(response);
-    return response;
+    return response.data;
   }
 
   /**
@@ -81,7 +81,7 @@ class AuthClient {
       }
     );
     handleResponseError(response);
-    return response;
+    return response.data;
   }
 
   /**
