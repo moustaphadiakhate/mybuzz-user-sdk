@@ -1,9 +1,9 @@
-import { create } from 'apisauce';
-import { pick } from 'lodash';
-import { omit } from 'lodash/omit';
-import LibPhoneNumber from 'google-libphonenumber';
+import { create } from "apisauce";
+import { pick } from "lodash";
+import { omit } from "lodash/omit";
+import LibPhoneNumber from "google-libphonenumber";
 
-import handleResponseError from '../utils/handleResponseError';
+import handleResponseError from "../utils/handleResponseError";
 
 const phoneUtil = LibPhoneNumber.PhoneNumberUtil.getInstance();
 const PNF = LibPhoneNumber.PhoneNumberFormat;
@@ -31,13 +31,25 @@ class AuthClient {
   async create(entityType, entityParams) {
     const { api } = this;
     const response = await api.post(`/${entityType}`, entityParams);
-      handleResponseError(response);
-      const result = response.data;
-      if (result.token) {
-        const tokenInfos = pick(result, ['token', 'expiresIn', 'refreshToken']);
-        this.tokens.put('ACCOUNT_VERIFICATION', tokenInfos);
+    handleResponseError(response);
+    const result = response.data;
+    return new Promise((resolve, reject) => {
+      if (!result.ok && result.problem) {
+        const error = "Unknown error";
+        reject(error);
+      } else {
+        if (result.token) {
+          const tokenInfos = pick(result, [
+            "token",
+            "expiresIn",
+            "refreshToken"
+          ]);
+          this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
+        }
+
+        resolve(result);
       }
-      return result.verified;
+    });
   }
 
   /**
@@ -52,7 +64,7 @@ class AuthClient {
       {
         headers: {
           Authorization: `Bearer ${await this.tokens.get(
-            'ACCOUNT_VERIFICATION'
+            "ACCOUNT_VERIFICATION"
           )}`
         }
       }
@@ -74,7 +86,7 @@ class AuthClient {
       {
         headers: {
           Authorization: `Bearer ${await this.tokens.get(
-            'ACCOUNT_VERIFICATION'
+            "ACCOUNT_VERIFICATION"
           )}`
         }
       }
@@ -95,7 +107,7 @@ class AuthClient {
       {
         headers: {
           Authorization: `Bearer ${await this.tokens.get(
-            'ACCOUNT_VERIFICATION'
+            "ACCOUNT_VERIFICATION"
           )}`
         }
       }
@@ -113,7 +125,7 @@ class AuthClient {
    */
   async sendOtp(rawPhoneNumber) {}
 
-  /** 
+  /**
    * Verify an otp code
    *
    * @param {String} code - The code to verify
@@ -122,15 +134,15 @@ class AuthClient {
    */
   async verify(code) {
     const { api } = this;
-    const response = await api.post('/otp/verify', {
+    const response = await api.post("/otp/verify", {
       phoneNumber: this.pendingPhoneNumber,
       code
     });
     handleResponseError(response);
     const result = response.data;
     if (result.token) {
-      const tokenInfos = pick(result, ['token', 'expiresIn', 'refreshToken']);
-      this.tokens.put('ACCOUNT_VERIFICATION', tokenInfos);
+      const tokenInfos = pick(result, ["token", "expiresIn", "refreshToken"]);
+      this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
     }
     return result.verified;
   }
@@ -138,12 +150,12 @@ class AuthClient {
   async getMyAccount() {
     const { api } = this;
     const response = await api.get(
-      '/accounts/my-account',
+      "/accounts/my-account",
       {},
       {
         headers: {
           Authorization: `Bearer ${await this.tokens.get(
-            'ACCOUNT_VERIFICATION'
+            "ACCOUNT_VERIFICATION"
           )}`
         }
       }
@@ -160,7 +172,7 @@ class AuthClient {
       {
         headers: {
           Authorization: `Bearer ${await this.tokens.get(
-            'ACCOUNT_VERIFICATION'
+            "ACCOUNT_VERIFICATION"
           )}`
         }
       }
@@ -170,7 +182,7 @@ class AuthClient {
   }
 
   async isLoggedIn() {
-    return !!(await this.tokens.get('ACCOUNT_VERIFICATION'));
+    return !!(await this.tokens.get("ACCOUNT_VERIFICATION"));
   }
 
   async disconnect() {
