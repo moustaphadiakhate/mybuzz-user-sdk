@@ -5,8 +5,6 @@ import LibPhoneNumber from 'google-libphonenumber';
 
 import handleResponseError from '../utils/handleResponseError';
 
-import endpointCountries from '../endpointCountries';
-
 const phoneUtil = LibPhoneNumber.PhoneNumberUtil.getInstance();
 const PNF = LibPhoneNumber.PhoneNumberFormat;
 
@@ -113,27 +111,7 @@ class AuthClient {
    * @returns {Otp} - the generated otp (without the code)
    * @memberof AuthClient
    */
-  async sendOtp(rawPhoneNumber) {
-    const { api } = this;
-    let phoneNumber = phoneUtil.parse(
-      rawPhoneNumber,
-      endpointCountries[this.endpoint]
-    );
-    if (!phoneNumber.getCountryCode()) {
-      const countryCode = phoneUtil.getCountryCodeForRegion(
-        endpointCountries[this.endpoint]
-      );
-      phoneNumber = countryCode + rawPhoneNumber;
-    }
-    const formattedPhoneNumber = phoneUtil.format(phoneNumber, PNF.E164);
-    const response = await api.post('/otp', {
-      phoneNumber: formattedPhoneNumber
-    });
-    handleResponseError(response);
-    this.pendingPhoneNumber = formattedPhoneNumber;
-    const otp = response.data;
-    return otp;
-  }
+  async sendOtp(rawPhoneNumber) {}
 
   /** 
    * Verify an otp code
