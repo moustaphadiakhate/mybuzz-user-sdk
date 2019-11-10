@@ -1,5 +1,6 @@
 
 import TokenRepository from './TokenRepository';
+import AuthClient from './Auth/AuthClient';
 
 class Client {
   /**
