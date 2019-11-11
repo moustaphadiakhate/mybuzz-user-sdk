@@ -33,23 +33,11 @@ class AuthClient {
     const response = await api.post(`/${entityType}`, entityParams);
     handleResponseError(response);
     const result = response.data;
-    return new Promise((resolve, reject) => {
-      if (!result.ok && result.problem) {
-        const error = "Unknown error";
-        reject(error);
-      } else {
-        if (result.token) {
-          const tokenInfos = pick(result, [
-            "token",
-            "expiresIn",
-            "refreshToken"
-          ]);
-          this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
-        }
-
-        resolve(result);
-      }
-    });
+    if (result.tokens) {
+      const tokenInfos = pick(result.tokens, ["token", "expiresIn", "refreshToken"]);
+      this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
+    }
+    return result;
   }
 
   /**
@@ -140,11 +128,7 @@ class AuthClient {
     });
     handleResponseError(response);
     const result = response.data;
-    if (result.token) {
-      const tokenInfos = pick(result, ["token", "expiresIn", "refreshToken"]);
-      this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
-    }
-    return result.verified;
+    return result;
   }
 
   async getMyAccount() {
