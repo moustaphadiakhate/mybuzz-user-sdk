@@ -34,7 +34,7 @@ class Client {
   }
 
   _setupTokenRepoListeners() {
-    this.tokenRepo.on('update', async tokens => {
+    this.tokenRepo.on('update', async tokens => {      
       await this.options.storage.write('tokens', tokens);
     });
   }

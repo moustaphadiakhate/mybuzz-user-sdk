@@ -37,6 +37,7 @@ class AuthClient {
       const tokenInfos = pick(result.tokens, ["token", "expiresIn", "refreshToken"]);
       this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
     }
+        
     return result;
   }
 
@@ -51,7 +52,7 @@ class AuthClient {
       {},
       {
         headers: {
-          Authorization: `Bearer ${await this.tokens.get(
+          Authorization: `${await this.tokens.get(
             "ACCOUNT_VERIFICATION"
           )}`
         }
@@ -66,14 +67,13 @@ class AuthClient {
    *
    */
   async update(entityType, entityParams) {
-    console.log(entityParams);
     const { api } = this;
     const response = await api.patch(
       `/${entityType}/${entityParams._id}`,
       entityParams,
       {
         headers: {
-          Authorization: `Bearer ${await this.tokens.get(
+          Authorization: `${await this.tokens.get(
             "ACCOUNT_VERIFICATION"
           )}`
         }
@@ -94,7 +94,7 @@ class AuthClient {
       {},
       {
         headers: {
-          Authorization: `Bearer ${await this.tokens.get(
+          Authorization: `${await this.tokens.get(
             "ACCOUNT_VERIFICATION"
           )}`
         }
@@ -128,7 +128,11 @@ class AuthClient {
     });
     handleResponseError(response);
     const result = response.data;
-    return result;
+    if (result.token) {
+      const tokenInfos = pick(result, ["token", "expiresIn", "refreshToken"]);
+      this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
+    }
+    return result.verified;
   }
 
   async getMyAccount() {
@@ -138,7 +142,7 @@ class AuthClient {
       {},
       {
         headers: {
-          Authorization: `Bearer ${await this.tokens.get(
+          Authorization: `${await this.tokens.get(
             "ACCOUNT_VERIFICATION"
           )}`
         }
@@ -155,7 +159,7 @@ class AuthClient {
       { metadata },
       {
         headers: {
-          Authorization: `Bearer ${await this.tokens.get(
+          Authorization: `${await this.tokens.get(
             "ACCOUNT_VERIFICATION"
           )}`
         }

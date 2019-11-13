@@ -30,7 +30,7 @@ class TokenRepository {
       {},
       {
         headers: {
-          Authorization: `Bearer ${refreshToken}`
+          Authorization: `${refreshToken}`
         }
       }
     );
@@ -46,11 +46,14 @@ class TokenRepository {
     if (!tokenInfos) {
       return;
     }
+        
     const { expiresIn, refreshToken } = tokenInfos;
-    if (moment(expiresIn).isBefore(moment())) {
+    if (moment(tokenInfos.expiresIn).isBefore(moment())) {
       const { token, expiresIn } = await this.getNewToken(refreshToken);
       tokenInfos.token = token;
       tokenInfos.expiresIn = expiresIn;
+      console.log(tokenInfos);
+      
       this.emit('update', this.tokens);
     }
     return tokenInfos.token;
