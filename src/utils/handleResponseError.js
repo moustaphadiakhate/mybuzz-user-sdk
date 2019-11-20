@@ -7,7 +7,7 @@ function handleResponseError(response) {
     error.message = response.data.message;
     error.code = response.data.code;
   } else {
-    error.message = 'No response from server. Check your internet connection';
+    error.message = "No response from server. Check your internet connection";
   }
   error.status = response.status;
   error.response = response;

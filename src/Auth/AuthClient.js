@@ -2,6 +2,7 @@ import { create } from "apisauce";
 import { pick } from "lodash";
 import { omit } from "lodash/omit";
 import LibPhoneNumber from "google-libphonenumber";
+import DefaultIO from "socket.io-client";
 
 import handleResponseError from "../utils/handleResponseError";
 
@@ -12,13 +13,14 @@ class AuthClient {
   /**
    * Creates an instance of Client.
    * @param {string} endpoint - root url of the mybuzz service
-   * @param {Object} options - other options
+   * @param {Object} io - custom socket  io constructor  (defaults to io from socketio.client)
    * @memberof AuthClient
    */
-  constructor(endpoint, { tokens }) {
+  constructor(endpoint, { tokens, io }) {
     this.endpoint = endpoint;
     this.tokens = tokens;
     this.pendingPhoneNumber = null;
+    this.io = io.Client(`${endpoint}/auth`) || DefaultIO(`${endpoint}/auth`);
     this.api = create({
       baseURL: `${endpoint}/auth`
     });
@@ -34,10 +36,14 @@ class AuthClient {
     handleResponseError(response);
     const result = response.data;
     if (result.tokens) {
-      const tokenInfos = pick(result.tokens, ["token", "expiresIn", "refreshToken"]);
+      const tokenInfos = pick(result.tokens, [
+        "token",
+        "expiresIn",
+        "refreshToken"
+      ]);
       this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
     }
-        
+
     return result;
   }
 
@@ -52,9 +58,7 @@ class AuthClient {
       {},
       {
         headers: {
-          Authorization: `${await this.tokens.get(
-            "ACCOUNT_VERIFICATION"
-          )}`
+          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
         }
       }
     );
@@ -73,9 +77,7 @@ class AuthClient {
       entityParams,
       {
         headers: {
-          Authorization: `${await this.tokens.get(
-            "ACCOUNT_VERIFICATION"
-          )}`
+          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
         }
       }
     );
@@ -94,9 +96,7 @@ class AuthClient {
       {},
       {
         headers: {
-          Authorization: `${await this.tokens.get(
-            "ACCOUNT_VERIFICATION"
-          )}`
+          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
         }
       }
     );
@@ -142,9 +142,7 @@ class AuthClient {
       {},
       {
         headers: {
-          Authorization: `${await this.tokens.get(
-            "ACCOUNT_VERIFICATION"
-          )}`
+          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
         }
       }
     );
@@ -159,14 +157,20 @@ class AuthClient {
       { metadata },
       {
         headers: {
-          Authorization: `${await this.tokens.get(
-            "ACCOUNT_VERIFICATION"
-          )}`
+          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
         }
       }
     );
     handleResponseError(response);
     return response.data.account;
+  }
+
+  async checkUsername(username) {
+    return new Promise((resolve, reject) => {
+      this.io.emit("checkusername", username, async function(response) {
+        resolve(response);
+      });
+    });
   }
 
   async isLoggedIn() {

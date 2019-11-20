@@ -1,22 +1,21 @@
-import $ from 'jquery';
-import io from 'socket.io-client';
+import $ from "jquery";
+import io from "socket.io-client";
 
-import Client from '../src/Client';
+import Client from "../src/Client";
 
 const storage = {
   read: key => JSON.parse(localStorage.getItem(key)),
   write: (key, data) => localStorage.setItem(key, JSON.stringify(data))
 };
 
-const client1 = new Client('https://localhost:3000', { storage });
-const client2 = new Client('https://localhost:3000', {
+const client1 = new Client("https://localhost:3000", { storage });
+const client2 = new Client("https://localhost:3000", {
   storage,
   io: (...args) => {
-    console.log('custom io called with', ...args);
+    console.log("custom io called with", ...args);
     return io(...args);
   }
 });
-
 
 var $loginPage = $("#loginPage");
 var $chatPage = $("#chatPage");
@@ -28,8 +27,7 @@ socket.on("message", function(message) {
 socket.on("login", function(message) {
   if (message.code != "ok") {
     alert("Le serveur message  : " + JSON.stringify(message));
-  } 
-  else {
+  } else {
     $loginPage.hide();
     $chatPage.show();
   }

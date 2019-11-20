@@ -1,7 +1,7 @@
-import ee from 'event-emitter';
-import moment from 'moment';
-import Promise from 'bluebird';
-import { create } from 'apisauce';
+import ee from "event-emitter";
+import moment from "moment";
+import Promise from "bluebird";
+import { create } from "apisauce";
 
 class TokenRepository {
   constructor(endpoint) {
@@ -15,7 +15,7 @@ class TokenRepository {
 
   put(key, token) {
     this.tokens[key] = token;
-    this.emit('update', this.tokens);
+    this.emit("update", this.tokens);
   }
 
   /**
@@ -26,7 +26,7 @@ class TokenRepository {
    */
   async getNewToken(refreshToken) {
     const response = await this.api.post(
-      '/refreshtoken',
+      "/refreshtoken",
       {},
       {
         headers: {
@@ -46,15 +46,15 @@ class TokenRepository {
     if (!tokenInfos) {
       return;
     }
-        
+
     const { expiresIn, refreshToken } = tokenInfos;
     if (moment(tokenInfos.expiresIn).isBefore(moment())) {
       const { token, expiresIn } = await this.getNewToken(refreshToken);
       tokenInfos.token = token;
       tokenInfos.expiresIn = expiresIn;
       console.log(tokenInfos);
-      
-      this.emit('update', this.tokens);
+
+      this.emit("update", this.tokens);
     }
     return tokenInfos.token;
   }
@@ -66,7 +66,7 @@ class TokenRepository {
 
   clear() {
     this.tokens = {};
-    this.emit('update', this.tokens);
+    this.emit("update", this.tokens);
   }
 
   async updateEndpoint(endpoint) {
