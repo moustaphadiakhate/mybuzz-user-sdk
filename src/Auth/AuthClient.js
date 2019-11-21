@@ -105,34 +105,16 @@ class AuthClient {
   }
 
   /**
-   * Send a one time password to the phone number of the user
-   *
    * @param {String} phoneNumber - the phone number of the user
-   * @returns {Otp} - the generated otp (without the code)
+   * @returns {response} - the generated otp (without the code)
    * @memberof AuthClient
    */
-  async sendOtp(rawPhoneNumber) {}
-
-  /**
-   * Verify an otp code
-   *
-   * @param {String} code - The code to verify
-   * @returns {Boolean} verified - whether the code is verified or not
-   * @memberof AuthClient
-   */
-  async verify(code) {
-    const { api } = this;
-    const response = await api.post("/otp/verify", {
-      phoneNumber: this.pendingPhoneNumber,
-      code
+  async sendMeOtp(phoneNumber) {
+    return new Promise((resolve, reject) => {
+      this.io.emit("sendMeOtp", phoneNumber, async function(response) {
+        resolve(response);
+      });
     });
-    handleResponseError(response);
-    const result = response.data;
-    if (result.token) {
-      const tokenInfos = pick(result, ["token", "expiresIn", "refreshToken"]);
-      this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
-    }
-    return result.verified;
   }
 
   async getMyAccount() {
