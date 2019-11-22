@@ -1,6 +1,6 @@
 import TokenRepository from "./TokenRepository";
 import AuthClient from "./Auth/AuthClient";
-
+import uuid from "uuid/v4";
 class Client {
   /**
    * Creates an instance of Client.
@@ -13,10 +13,13 @@ class Client {
   constructor(endpoint, options) {
     this.endpoint = endpoint;
     this.options = options;
+    this.uuid = uuid;
     this.tokenRepo = new TokenRepository(endpoint);
     this.auth = new AuthClient(endpoint, {
       tokens: this.tokenRepo,
-      io: options.io
+      io: this.options.io,
+      storage: this.options.storage,
+      uuid: this.uuid
     });
     this._restoreTokens();
     this._setupTokenRepoListeners();

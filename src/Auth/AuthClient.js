@@ -3,7 +3,6 @@ import { pick } from "lodash";
 import { omit } from "lodash/omit";
 import LibPhoneNumber from "google-libphonenumber";
 import DefaultIO from "socket.io-client";
-
 import handleResponseError from "../utils/handleResponseError";
 
 const phoneUtil = LibPhoneNumber.PhoneNumberUtil.getInstance();
@@ -16,15 +15,34 @@ class AuthClient {
    * @param {Object} io - custom socket  io constructor  (defaults to io from socketio.client)
    * @memberof AuthClient
    */
-  constructor(endpoint, { tokens, io }) {
+  constructor(endpoint, { tokens, io, storage, uuid }) {
     this.endpoint = endpoint;
     this.tokens = tokens;
+    this.uuid = uuid;
+    this.MBR = null;
     this.pendingPhoneNumber = null;
+    this.storage = storage;
     this.io = io.Client(`${endpoint}/auth`) || DefaultIO(`${endpoint}/auth`);
     this.api = create({
       baseURL: `${endpoint}/auth`
     });
+
+    this.loadMBR();
   }
+
+  /**
+   * Get the MBR
+   *
+   */
+
+  async loadMBR() {
+    this.MBR = await this.storage.read("registrator");
+    if (!MBR) {
+      this.MBR = this.uuid();
+      await this.storage.write("registrator", MBR);
+    }
+  }
+
   /**
    * Create
    *
