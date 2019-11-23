@@ -19,7 +19,7 @@ class AuthClient {
     this.endpoint = endpoint;
     this.tokens = tokens;
     this.uuid = uuid;
-    this.MBR = null;
+    this.MBA = null;
     this.pendingPhoneNumber = null;
     this.storage = storage;
     this.io = io.Client(`${endpoint}/auth`) || DefaultIO(`${endpoint}/auth`);
@@ -27,19 +27,19 @@ class AuthClient {
       baseURL: `${endpoint}/auth`
     });
 
-    this.loadMBR();
+    this.loadMBA();
   }
 
   /**
-   * Get the MBR
+   * Get the MBA
    *
    */
 
-  async loadMBR() {
-    this.MBR = await this.storage.read("authClient");    
-    if (!this.MBR) {
-      this.MBR = this.uuid();
-      await this.storage.write("authClient", this.MBR);
+  async loadMBA() {
+    this.MBA = await this.storage.read("authClient");
+    if (!this.MBA) {
+      this.MBA = { uuid: this.uuid() };
+      await this.storage.write("authClient", this.MBA);
     }
   }
 
