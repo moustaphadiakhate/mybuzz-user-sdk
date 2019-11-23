@@ -36,10 +36,10 @@ class AuthClient {
    */
 
   async loadMBR() {
-    this.MBR = await this.storage.read("registrator");
-    if (!MBR) {
+    this.MBR = await this.storage.read("authClient");    
+    if (!this.MBR) {
       this.MBR = this.uuid();
-      await this.storage.write("registrator", MBR);
+      await this.storage.write("authClient", this.MBR);
     }
   }
 
