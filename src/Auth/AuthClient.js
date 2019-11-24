@@ -44,6 +44,17 @@ class AuthClient {
   }
 
   /**
+   * update the MBA
+   *
+   */
+
+  async updateMBA(newOne) {
+    // omit password before
+    Object.assign(this.MBA, newOne);
+    await this.storage.write("authClient", this.MBA);
+  }
+
+  /**
    * Create
    *
    */
