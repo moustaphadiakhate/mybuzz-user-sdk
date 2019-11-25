@@ -1,5 +1,6 @@
 import TokenRepository from "./TokenRepository";
 import AuthClient from "./Auth/AuthClient";
+import MessagingClient from "./messaging/MessagingClient";
 import uuid from "uuid/v4";
 class Client {
   /**
@@ -21,13 +22,19 @@ class Client {
       storage: this.options.storage,
       uuid: this.uuid
     });
+    this.messaging = new MessagingClient(endpoint, {
+      tokens: this.tokenRepo,
+      io: this.options.io,
+      storage: this.options.storage,
+      uuid: this.uuid
+    });
     this._restoreTokens();
     this._setupTokenRepoListeners();
     this._connectSocketIO();
   }
 
   async updateEndpoint(newEndpoint) {
-    [this.tokenRepo, this.auth].forEach(client =>
+    [this.tokenRepo, this.auth, this.messaging].forEach(client =>
       client.updateEndpoint(newEndpoint)
     );
   }
