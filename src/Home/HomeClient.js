@@ -27,7 +27,7 @@ class HomeClient {
   }
 
   /**
-   * Get
+   * Get friends & suggestions
    */
 
   async getAll(entityType) {
@@ -45,6 +45,10 @@ class HomeClient {
     return response.data;
   }
 
+  /**
+   * Get account settings from servers
+   */
+
   async getMyAccount() {
     const { api } = this;
     const response = await api.get(
@@ -60,6 +64,11 @@ class HomeClient {
     return response.data.account;
   }
 
+  /**
+   * Post account settings to servers
+   * @param {Object} metadata - new settings
+   */
+
   async updateMyAccount(metadata) {
     const { api } = this;
     const response = await api.post(
@@ -74,6 +83,8 @@ class HomeClient {
     handleResponseError(response);
     return response.data.account;
   }
+
+  // others methods would be better to call them outside mobile app
 
   /**
    * Update
@@ -93,6 +104,27 @@ class HomeClient {
     handleResponseError(response);
     return response.data;
   }
+
+  /**
+   * Delete
+   *
+   */
+  async delete(entityType, entityId) {
+    const { api } = this;
+    const response = await api.delete(
+      `/${entityType}/${entityId}`,
+      {},
+      {
+        headers: {
+          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
+        }
+      }
+    );
+    handleResponseError(response);
+    return response.data;
+  }
+
+  // is bellow is excepted
 
   async updateEndpoint(endpoint) {
     this.endpoint = endpoint;
