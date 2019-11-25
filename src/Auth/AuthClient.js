@@ -95,43 +95,6 @@ class AuthClient {
     return response.data;
   }
 
-  /**
-   * Update
-   *
-   */
-  async update(entityType, entityParams) {
-    const { api } = this;
-    const response = await api.patch(
-      `/${entityType}/${entityParams._id}`,
-      entityParams,
-      {
-        headers: {
-          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
-        }
-      }
-    );
-    handleResponseError(response);
-    return response.data;
-  }
-
-  /**
-   * Get
-   */
-
-  async getAll(entityType) {
-    const { api } = this;
-    const response = await api.get(
-      `/${entityType}/`,
-      {},
-      {
-        headers: {
-          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
-        }
-      }
-    );
-    handleResponseError(response);
-    return response.data;
-  }
 
   /**
    * @param {String} authData - All user authData
@@ -146,35 +109,7 @@ class AuthClient {
     });
   }
 
-  async getMyAccount() {
-    const { api } = this;
-    const response = await api.get(
-      "/accounts/my-account",
-      {},
-      {
-        headers: {
-          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
-        }
-      }
-    );
-    handleResponseError(response);
-    return response.data.account;
-  }
 
-  async updateMyAccount(metadata) {
-    const { api } = this;
-    const response = await api.post(
-      `/accounts/update-my-account`,
-      { metadata },
-      {
-        headers: {
-          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
-        }
-      }
-    );
-    handleResponseError(response);
-    return response.data.account;
-  }
 
   async checkUsername(username) {
     return new Promise((resolve, reject) => {
