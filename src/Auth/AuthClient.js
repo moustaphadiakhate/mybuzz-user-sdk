@@ -77,39 +77,17 @@ class AuthClient {
   }
 
   /**
-   * Delete
-   *
-   */
-  async delete(entityType, entityId) {
-    const { api } = this;
-    const response = await api.delete(
-      `/${entityType}/${entityId}`,
-      {},
-      {
-        headers: {
-          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
-        }
-      }
-    );
-    handleResponseError(response);
-    return response.data;
-  }
-
-
-  /**
    * @param {String} authData - All user authData
    * @returns {response} - the generated otp (without the code)
    * @memberof AuthClient
    */
   async sendMeOtp(authData) {
     return new Promise((resolve, reject) => {
-      this.io.emit('sendMeOtp', authData, async function(response) {
+      this.io.emit("sendMeOtp", authData, async function(response) {
         resolve(response);
       });
     });
   }
-
-
 
   async checkUsername(username) {
     return new Promise((resolve, reject) => {
