@@ -15,7 +15,6 @@ class MessagingClient {
     this.endpoint = endpoint;
     this.tokens = tokens;
     this.uuid = uuid;
-    this.pendingPhoneNumber = null;
     this.storage = storage;
     this.io =
       io.Client(`${endpoint}/messaging`) || DefaultIO(`${endpoint}/messaging`);

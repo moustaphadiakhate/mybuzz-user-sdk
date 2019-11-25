@@ -1,5 +1,6 @@
 import TokenRepository from "./TokenRepository";
 import AuthClient from "./Auth/AuthClient";
+import Me from "./Home/Me";
 import MessagingClient from "./messaging/MessagingClient";
 import uuid from "uuid/v4";
 class Client {
@@ -16,6 +17,12 @@ class Client {
     this.options = options;
     this.uuid = uuid;
     this.tokenRepo = new TokenRepository(endpoint);
+    this.me = new Me(endpoint, {
+      tokens: this.tokenRepo,
+      io: this.options.io,
+      storage: this.options.storage,
+      uuid: this.uuid
+    });
     this.auth = new AuthClient(endpoint, {
       tokens: this.tokenRepo,
       io: this.options.io,
