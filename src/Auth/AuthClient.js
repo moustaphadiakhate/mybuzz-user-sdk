@@ -134,13 +134,13 @@ class AuthClient {
   }
 
   /**
-   * @param {String} phoneNumber - the phone number of the user
+   * @param {String} authData - All user authData
    * @returns {response} - the generated otp (without the code)
    * @memberof AuthClient
    */
-  async sendMeOtp(phoneNumber) {
+  async sendMeOtp(authData) {
     return new Promise((resolve, reject) => {
-      this.io.emit("sendMeOtp", phoneNumber, async function(response) {
+      this.io.emit('sendMeOtp', authData, async function(response) {
         resolve(response);
       });
     });
