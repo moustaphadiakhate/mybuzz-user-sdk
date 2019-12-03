@@ -9,7 +9,8 @@ First you need [node.js](https://nodejs.org/en/) v8.12.0 and [yarn](https://yarn
 Clone the repository by running:
 
 ```
-git clone git@github.com:sunutech/mybuzz-user-sdk.git
+git clone https://github.com/moustaphadiakhate/mybuzzmessaging.git
+
 ```
 
 Then cd into it:
