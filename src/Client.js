@@ -17,19 +17,18 @@ class Client {
     this.options = options;
     this.uuid = uuid;
     this.tokenRepo = new TokenRepository(endpoint);
-    this.me = new Me(endpoint, {
+    this.messaging = new MessagingClient(endpoint, {
       tokens: this.tokenRepo,
+      uuid: this.uuid,
       io: this.options.io,
+    });
+    this.me = new Me(endpoint, {
+      messaging: this.messaging,
+      tokens: this.tokenRepo,
       storage: this.options.storage,
-      uuid: this.uuid
+      io: this.options.io,
     });
     this.auth = new AuthClient(endpoint, {
-      tokens: this.tokenRepo,
-      io: this.options.io,
-      storage: this.options.storage,
-      uuid: this.uuid
-    });
-    this.messaging = new MessagingClient(endpoint, {
       tokens: this.tokenRepo,
       io: this.options.io,
       storage: this.options.storage,
@@ -50,6 +49,7 @@ class Client {
     const tokens = await this.options.storage.read("tokens");
     this.tokenRepo.load(tokens);
   }
+
   async _connectSocketIO() {
     // const {socket, configs} = this.options.io;
     // const io = socket(this.endpoint, configs);
