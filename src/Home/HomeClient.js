@@ -11,8 +11,9 @@ class HomeClient {
    * @param {Object} io - custom socket  io constructor  (defaults to io from socketio.client)
    * @memberof HomeClient
    */
-  constructor(endpoint, { tokens, io, storage, uuid }) {
+  constructor(endpoint, { tokens, io, storage, messaging }) {
     this.endpoint = endpoint;
+    this.messenger = messaging;
     this.tokens = tokens;
     this.storage = storage;
     this.io = io.Client(`${endpoint}/me`) || DefaultIO(`${endpoint}/me`);
@@ -24,6 +25,8 @@ class HomeClient {
   async Initialize(message) {
     // load friends and messages all about me
     // load them local side and wait socket for updates
+    
+
   }
 
   /**
