@@ -1,7 +1,7 @@
 import TokenRepository from "./TokenRepository";
 import AuthClient from "./Auth/AuthClient";
 import Me from "./Home/HomeClient";
-import MessagingClient from "./messaging/MessagingClient";
+import MessagingClient from "./Messaging/MessagingClient";
 import uuid from "uuid/v4";
 class Client {
   /**
