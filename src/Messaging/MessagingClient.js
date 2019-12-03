@@ -11,11 +11,10 @@ class MessagingClient {
    * @param {Object} io - custom socket  io constructor  (defaults to io from socketio.client)
    * @memberof MessagingClient
    */
-  constructor(endpoint, { tokens, io, storage, uuid }) {
+  constructor(endpoint, { tokens, io, uuid }) {
     this.endpoint = endpoint;
     this.tokens = tokens;
     this.uuid = uuid;
-    this.storage = storage;
     this.io =
       io.Client(`${endpoint}/messaging`) || DefaultIO(`${endpoint}/messaging`);
     this.api = create({
