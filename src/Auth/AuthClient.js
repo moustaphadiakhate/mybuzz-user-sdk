@@ -12,7 +12,7 @@ class AuthClient {
   /**
    * Creates an instance of Client.
    * @param {string} endpoint - root url of the mybuzz service
-   * @param {Object} io - custom socket  io constructor  (defaults to io from socketio.client)
+   * @param {Object} options - client options
    * @memberof AuthClient
    */
   constructor(endpoint, { tokens, io, storage, uuid }) {

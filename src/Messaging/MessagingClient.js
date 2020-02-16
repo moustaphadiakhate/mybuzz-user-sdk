@@ -15,11 +15,37 @@ class MessagingClient {
     this.endpoint = endpoint;
     this.tokens = tokens;
     this.uuid = uuid;
-    this.io =
-      io.Client(`${endpoint}/messaging`) || DefaultIO(`${endpoint}/messaging`);
+    this.io = io.Client(`${endpoint}/messaging`) || DefaultIO(`${endpoint}/messaging`);
     this.api = create({
       baseURL: `${endpoint}/messaging`
     });
+    this._initialize();
+  }
+
+  /**
+   * load messages from servers
+   */
+  async _initialize() {
+    this.messages = await this.getAll('messages');
+  }
+
+  /**
+   * Get all messages from servers
+   */
+
+  async getAll(entityType) {
+    const { api } = this;
+    const response = await api.get(
+      `/${entityType}/`,
+      {},
+      {
+        headers: {
+          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
+        }
+      }
+    );
+    handleResponseError(response);
+    return response.data;
   }
 
   async sendMessage(message) {

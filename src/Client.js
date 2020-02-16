@@ -17,23 +17,22 @@ class Client {
     this.options = options;
     this.uuid = uuid;
     this.tokenRepo = new TokenRepository(endpoint);
-    this.messaging = new MessagingClient(endpoint, {
-      tokens: this.tokenRepo,
-      uuid: this.uuid,
-      io: this.options.io,
-    });
-    this.me = new Me(endpoint, {
-      messaging: this.messaging,
-      tokens: this.tokenRepo,
-      storage: this.options.storage,
-      io: this.options.io,
-    });
     this.auth = new AuthClient(endpoint, {
       tokens: this.tokenRepo,
       io: this.options.io,
       storage: this.options.storage,
       uuid: this.uuid
     });
+    this.me = new Me(endpoint, {
+      tokens: this.tokenRepo,
+      storage: this.options.storage,
+      io: this.options.io,
+    });
+    this.messanger = new MessagingClient(endpoint, {
+      tokens: this.tokenRepo,
+      uuid: this.uuid,
+      io: this.options.io
+    })
     this._restoreTokens();
     this._setupTokenRepoListeners();
     this._connectSocketIO();

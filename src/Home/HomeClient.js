@@ -8,25 +8,22 @@ class HomeClient {
   /**
    * Creates an instance of Client.
    * @param {string} endpoint - root url of the mybuzz service
-   * @param {Object} io - custom socket  io constructor  (defaults to io from socketio.client)
+   * @param {Object} options - client options
    * @memberof HomeClient
    */
   constructor(endpoint, { tokens, io, storage, messaging }) {
     this.endpoint = endpoint;
-    this.messenger = messaging;
     this.tokens = tokens;
     this.storage = storage;
     this.io = io.Client(`${endpoint}/me`) || DefaultIO(`${endpoint}/me`);
-    this.api = create({
-      baseURL: `${endpoint}/me`
-    });
+    this.api = create({ baseURL: `${endpoint}/me`} );
+    this._initialize();
   }
-
-  async Initialize(message) {
-    // load friends and messages all about me
-    // load them local side and wait socket for updates
-    
-
+  /**
+   * load firends from servers
+   */
+  async _initialize() {
+    this.friends = await this.getAll('friends');
   }
 
   /**
@@ -55,7 +52,7 @@ class HomeClient {
   async getMyAccount() {
     const { api } = this;
     const response = await api.get(
-      "/accounts/my-account",
+      "/my-account",
       {},
       {
         headers: {
@@ -75,7 +72,7 @@ class HomeClient {
   async updateMyAccount(metadata) {
     const { api } = this;
     const response = await api.post(
-      `/accounts/update-my-account`,
+      `/update-my-account`,
       { metadata },
       {
         headers: {
@@ -85,6 +82,11 @@ class HomeClient {
     );
     handleResponseError(response);
     return response.data.account;
+  }
+
+  async updateRelation(data) {
+    // Do all things on local and emit
+    this.io.emit("relation", data);
   }
 
   // others methods would be better to call them outside mobile app
