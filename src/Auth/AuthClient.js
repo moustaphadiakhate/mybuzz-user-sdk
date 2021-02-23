@@ -19,7 +19,7 @@ class AuthClient {
     this.endpoint = endpoint;
     this.tokens = tokens;
     this.uuid = uuid;
-    this.MBA = null;
+    this.MBR = null;
     this.pendingPhoneNumber = null;
     this.storage = storage;
     this.io = io.Client(`${endpoint}/auth`) || DefaultIO(`${endpoint}/auth`);
@@ -27,31 +27,31 @@ class AuthClient {
       baseURL: `${endpoint}/auth`
     });
 
-    this.loadMBA();
+    this.loadMBR();
   }
 
   /**
-   * Get the MBA
+   * Get the MBR
    *
    */
 
-  async loadMBA() {
-    this.MBA = await this.storage.read("authClient");
-    if (!this.MBA) {
-      this.MBA = { uuid: this.uuid() };
-      await this.storage.write("authClient", this.MBA);
+  async loadMBR() {
+    this.MBR = await this.storage.read("AUTH_CLIENT");
+    if (!this.MBR) {
+      this.MBR = this.uuid();
+      await this.storage.write("AUTH_CLIENT", this.MBR);
     }
   }
 
   /**
-   * update the MBA
+   * update the MBR
    *
    */
 
-  async updateMBA(newOne) {
+  async updateMBR(newOne) {
     // omit password before
-    Object.assign(this.MBA, newOne);
-    await this.storage.write("authClient", this.MBA);
+    Object.assign(this.MBR, newOne);
+    await this.storage.write("AUTH_CLIENT", this.MBR);
   }
 
   /**
@@ -61,19 +61,19 @@ class AuthClient {
 
   async create(entityType, entityParams) {
     const { api } = this;
-    const response = await api.post(`/${entityType}`, entityParams);
-    handleResponseError(response);
-    const result = response.data;
-    if (result.tokens) {
-      const tokenInfos = pick(result.tokens, [
-        "token",
-        "expiresIn",
-        "refreshToken"
-      ]);
-      this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
-    }
-
-    return result;
+    try {
+      const response = await api.post(`/${entityType}`, entityParams);
+      const result = response.data;
+      if (result.tokens) {
+        const tokenInfos = pick(result.tokens, [
+          "token",
+          "expiresIn",
+          "refreshToken"
+        ]);
+        this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
+      }
+      return result;
+    } catch (error) { return handleResponseError(error) }
   }
 
   /**
@@ -83,7 +83,7 @@ class AuthClient {
    */
   async sendMeOtp(authData) {
     return new Promise((resolve, reject) => {
-      this.io.emit("sendMeOtp", authData, async function(response) {
+      this.io.emit("sendMeOtp", authData, async function (response) {
         resolve(response);
       });
     });
@@ -91,14 +91,14 @@ class AuthClient {
 
   async checkUsername(username) {
     return new Promise((resolve, reject) => {
-      this.io.emit("checkusername", username, async function(response) {
+      this.io.emit("checkusername", username, async function (response) {
         resolve(response);
       });
     });
   }
 
   async isLoggedIn() {
-    return !!(await this.tokens.get("ACCOUNT_VERIFICATION"));
+    return !!(await this.tokens.get("token"));
   }
 
   async disconnect() {
@@ -108,6 +108,15 @@ class AuthClient {
   async updateEndpoint(endpoint) {
     this.endpoint = endpoint;
     this.api.setBaseURL(`${endpoint}/auth`);
+  }
+
+  
+  async save(key, val) {
+    await this.storage.write(key, val);
+  }
+
+  async restore(val) {
+    return await this.storage.read(val);
   }
 }
 

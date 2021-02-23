@@ -16,7 +16,7 @@ class HomeClient {
     this.tokens = tokens;
     this.storage = storage;
     this.io = io.Client(`${endpoint}/me`) || DefaultIO(`${endpoint}/me`);
-    this.api = create({ baseURL: `${endpoint}/me`} );
+    this.api = create({ baseURL: `${endpoint}/me` });
     this._initialize();
   }
   /**
@@ -32,17 +32,18 @@ class HomeClient {
 
   async getAll(entityType) {
     const { api } = this;
-    const response = await api.get(
-      `/${entityType}/`,
-      {},
-      {
-        headers: {
-          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
+    try {
+      const response = await api.get(
+        `/account/${entityType}/`,
+        {},
+        {
+          headers: {
+            token: `${await this.tokens.get("token")}`
+          }
         }
-      }
-    );
-    handleResponseError(response);
-    return response.data;
+      );
+      return response.data;
+    } catch (error) { return handleResponseError(error); }
   }
 
   /**
@@ -51,17 +52,50 @@ class HomeClient {
 
   async getMyAccount() {
     const { api } = this;
-    const response = await api.get(
-      "/my-account",
-      {},
-      {
-        headers: {
-          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
+    try {
+      const response = await api.get(
+        "/account",
+        {},
+        {
+          headers: {
+            token: `${await this.tokens.get("token")}`
+          }
         }
-      }
-    );
-    handleResponseError(response);
-    return response.data.account;
+      );
+      const result = response.data;
+      // if (result.account) {
+      //   const accountInfos = pick(result.account, [
+      //     "_id",
+      //     "avatar",
+      //     "username",
+      //     "role",
+      //     "useCases",
+      //   ]);
+      //   await this.storage.write("ACCOUNT_INFOS", accountInfos);
+      // }
+      return result;
+    } catch (error) { return handleResponseError(error) }
+
+  }
+
+  /**
+ * Get buzzs FILTERS  OR COLLAGES from servers
+ */
+
+  async getBuzzs(entityType) {
+    const { api } = this;
+    try {
+      const response = await api.get(
+        `/${entityType}/`,
+        {},
+        {
+          headers: {
+            token: `${await this.tokens.get("token")}`
+          }
+        }
+      );
+      return response.data;
+    } catch (error) { return handleResponseError(error); }
   }
 
   /**
@@ -71,17 +105,20 @@ class HomeClient {
 
   async updateMyAccount(metadata) {
     const { api } = this;
-    const response = await api.post(
-      `/update-my-account`,
-      { metadata },
-      {
-        headers: {
-          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
+    try {
+      const response = await api.post(
+        `/account`,
+        { metadata },
+        {
+          headers: {
+            token: `${await this.tokens.get("token")}`
+          }
         }
-      }
-    );
-    handleResponseError(response);
-    return response.data.account;
+      );
+      await this.storage.write("ACCOUNT_INFOS", response.data.account);
+      return response.data;
+    } catch (error) { return handleResponseError(error) }
+
   }
 
   async updateRelation(data) {
@@ -97,17 +134,19 @@ class HomeClient {
    */
   async update(entityType, entityParams) {
     const { api } = this;
-    const response = await api.patch(
-      `/${entityType}/${entityParams._id}`,
-      entityParams,
-      {
-        headers: {
-          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
+    try {
+      const response = await api.patch(
+        `/account/${entityType}/${entityParams._id}`,
+        entityParams,
+        {
+          headers: {
+            token: `${await this.tokens.get("token")}`
+          }
         }
-      }
-    );
-    handleResponseError(response);
-    return response.data;
+      );
+      return response.data;
+    } catch (error) { return handleResponseError(error) }
+
   }
 
   /**
@@ -116,17 +155,39 @@ class HomeClient {
    */
   async delete(entityType, entityId) {
     const { api } = this;
-    const response = await api.delete(
-      `/${entityType}/${entityId}`,
-      {},
-      {
-        headers: {
-          Authorization: `${await this.tokens.get("ACCOUNT_VERIFICATION")}`
+    try {
+      const response = await api.delete(
+        `/account/${entityType}/${entityId}`,
+        {},
+        {
+          headers: {
+            token: `${await this.tokens.get("token")}`
+          }
         }
-      }
-    );
-    handleResponseError(response);
-    return response.data;
+      );
+      return response.data;
+      console.log(response.data);
+
+    } catch (error) {
+      return handleResponseError(error);
+    }
+  }
+
+  async save(key, val) {
+    await this.storage.write(key, val);
+  }
+
+  async restore(val) {
+    return await this.storage.read(val);
+  }
+
+  async disconnect() {
+    await this.storage.write('ACCOUNT_VERIFICATION', false);
+    await this.storage.write('ACCOUNT_INFOS', false);
+    await this.storage.write('NAVIGATION_STATE', false);
+    await this.storage.write('REDUX_STATEF', false);
+    await this.storage.write('ACCOUNT_MESSAGES', false);
+    await this.tokens.clear();
   }
 
   // is bellow is excepted

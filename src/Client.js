@@ -30,8 +30,9 @@ class Client {
     });
     this.messanger = new MessagingClient(endpoint, {
       tokens: this.tokenRepo,
+      io: this.options.io,
       uuid: this.uuid,
-      io: this.options.io
+      storage: this.options.storage,
     })
     this._restoreTokens();
     this._setupTokenRepoListeners();
@@ -45,7 +46,7 @@ class Client {
   }
 
   async _restoreTokens() {
-    const tokens = await this.options.storage.read("tokens");
+    const tokens = await this.options.storage.read("ACCOUNT_VERIFICATION");
     this.tokenRepo.load(tokens);
   }
 
@@ -57,7 +58,7 @@ class Client {
 
   _setupTokenRepoListeners() {
     this.tokenRepo.on("update", async tokens => {
-      await this.options.storage.write("tokens", tokens);
+      await this.options.storage.write("ACCOUNT_VERIFICATION", tokens);
     });
   }
 }

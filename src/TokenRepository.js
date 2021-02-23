@@ -13,8 +13,8 @@ class TokenRepository {
     });
   }
 
-  put(key, token) {
-    this.tokens[key] = token;
+  put(key, tokens) {
+    this.tokens = tokens || {};
     this.emit("update", this.tokens);
   }
 
@@ -30,12 +30,11 @@ class TokenRepository {
       {},
       {
         headers: {
-          Authorization: `${refreshToken}`
+          refreshToken: `${refreshToken}`
         }
       }
     );
-    const { token, expiresIn } = response.data;
-    return { token, expiresIn };
+    return response.data;
   }
 
   async get(key) {
@@ -47,16 +46,16 @@ class TokenRepository {
       return;
     }
 
-    const { expiresIn, refreshToken } = tokenInfos;
-    if (moment(tokenInfos.expiresIn).isBefore(moment())) {
-      const { token, expiresIn } = await this.getNewToken(refreshToken);
-      tokenInfos.token = token;
-      tokenInfos.expiresIn = expiresIn;
-      console.log(tokenInfos);
-
-      this.emit("update", this.tokens);
+    const newTokens = this.tokens;
+    if (moment(newTokens.expiresIn).isBefore(moment())) {
+      const { token, expiresIn } = await this.getNewToken(newTokens.refreshToken);
+      newTokens.token = token;
+      newTokens.expiresIn = expiresIn;
+      this.tokens = newTokens;
+      this.emit("update", newTokens);
+      tokenInfos = newTokens[key];
     }
-    return tokenInfos.token;
+    return tokenInfos;
   }
 
   load(tokens) {
@@ -66,7 +65,7 @@ class TokenRepository {
 
   clear() {
     this.tokens = {};
-    this.emit("update", this.tokens);
+    this.emit("update", {});
   }
 
   async updateEndpoint(endpoint) {
