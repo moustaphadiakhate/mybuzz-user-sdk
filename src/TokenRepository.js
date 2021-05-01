@@ -2,6 +2,7 @@ import ee from "event-emitter";
 import moment from "moment";
 import Promise from "bluebird";
 import { create } from "apisauce";
+import handleResponseError from "./utils/handleResponseError";
 
 class TokenRepository {
   constructor(endpoint) {
@@ -25,16 +26,22 @@ class TokenRepository {
    * @returns {String} token - The new access token
    */
   async getNewToken(refreshToken) {
-    const response = await this.api.post(
-      "/refreshtoken",
-      {},
-      {
-        headers: {
-          refreshToken: `${refreshToken}`
+    try {
+      const response = await this.api.post(
+        "/refreshtoken",
+        {},
+        {
+          headers: {
+            refreshToken: `${refreshToken}`
+          }
         }
-      }
-    );
-    return response.data;
+      );
+      return response.data;
+    } catch (error) {
+      // handleResponseError(error);
+      return this.tokens;
+    }
+
   }
 
   async get(key) {
@@ -49,8 +56,8 @@ class TokenRepository {
     const newTokens = this.tokens;
     if (moment(newTokens.expiresIn).isBefore(moment())) {
       const { token, expiresIn } = await this.getNewToken(newTokens.refreshToken);
-      newTokens.token = token;
-      newTokens.expiresIn = expiresIn;
+      newTokens.token = token ? token : newTokens.token;
+      newTokens.expiresIn = expiresIn ? expiresIn : newTokens.expiresIn;
       this.tokens = newTokens;
       this.emit("update", newTokens);
       tokenInfos = newTokens[key];

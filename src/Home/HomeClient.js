@@ -184,9 +184,11 @@ class HomeClient {
   async disconnect() {
     await this.storage.write('ACCOUNT_VERIFICATION', false);
     await this.storage.write('ACCOUNT_INFOS', false);
+    await this.storage.write('ACCOUNT_MESSAGES', false);
+    await this.storage.write('ACCOUNT_NOTIFICATIONS', false);
+    await this.storage.write('ACCOUNT_USECASES', false);
     await this.storage.write('NAVIGATION_STATE', false);
     await this.storage.write('REDUX_STATEF', false);
-    await this.storage.write('ACCOUNT_MESSAGES', false);
     await this.tokens.clear();
   }
 
