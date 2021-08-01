@@ -1,8 +1,8 @@
-import { create } from "apisauce";
-import { pick } from "lodash";
-import { omit } from "lodash/omit";
-import DefaultIO from "socket.io-client";
-import handleResponseError from "../utils/handleResponseError";
+import {create} from 'apisauce';
+import {pick} from 'lodash';
+import {omit} from 'lodash/omit';
+import DefaultIO from 'socket.io-client';
+import handleResponseError from '../utils/handleResponseError';
 
 class HomeClient {
   /**
@@ -11,12 +11,12 @@ class HomeClient {
    * @param {Object} options - client options
    * @memberof HomeClient
    */
-  constructor(endpoint, { tokens, io, storage, messaging }) {
+  constructor(endpoint, {tokens, io, storage, messaging}) {
     this.endpoint = endpoint;
     this.tokens = tokens;
     this.storage = storage;
     this.io = io.Client(`${endpoint}/me`) || DefaultIO(`${endpoint}/me`);
-    this.api = create({ baseURL: `${endpoint}/me` });
+    this.api = create({baseURL: `${endpoint}/me`});
     this._initialize();
   }
   /**
@@ -31,19 +31,21 @@ class HomeClient {
    */
 
   async getAll(entityType) {
-    const { api } = this;
+    const {api} = this;
     try {
       const response = await api.get(
         `/account/${entityType}/`,
         {},
         {
           headers: {
-            token: `${await this.tokens.get("token")}`
-          }
-        }
+            Authorization: `${await this.tokens.get('token')}`,
+          },
+        },
       );
       return response.data;
-    } catch (error) { return handleResponseError(error); }
+    } catch (error) {
+      return handleResponseError(error);
+    }
   }
 
   /**
@@ -51,51 +53,43 @@ class HomeClient {
    */
 
   async getMyAccount() {
-    const { api } = this;
+    const {api} = this;
     try {
       const response = await api.get(
-        "/account",
+        '/account',
         {},
         {
           headers: {
-            token: `${await this.tokens.get("token")}`
-          }
-        }
+            Authorization: `${await this.tokens.get('token')}`,
+          },
+        },
       );
-      const result = response.data;
-      // if (result.account) {
-      //   const accountInfos = pick(result.account, [
-      //     "_id",
-      //     "avatar",
-      //     "username",
-      //     "role",
-      //     "useCases",
-      //   ]);
-      //   await this.storage.write("ACCOUNT_INFOS", accountInfos);
-      // }
-      return result;
-    } catch (error) { return handleResponseError(error) }
-
+      return response.data;
+    } catch (error) {
+      return handleResponseError(error);
+    }
   }
 
   /**
- * Get buzzs FILTERS  OR COLLAGES from servers
- */
+   * Get buzzs FILTERS  OR COLLAGES from servers
+   */
 
   async getBuzzs(entityType) {
-    const { api } = this;
+    const {api} = this;
     try {
       const response = await api.get(
         `/${entityType}/`,
         {},
         {
           headers: {
-            token: `${await this.tokens.get("token")}`
-          }
-        }
+            Authorization: `${await this.tokens.get('token')}`,
+          },
+        },
       );
       return response.data;
-    } catch (error) { return handleResponseError(error); }
+    } catch (error) {
+      return handleResponseError(error);
+    }
   }
 
   /**
@@ -104,26 +98,27 @@ class HomeClient {
    */
 
   async updateMyAccount(metadata) {
-    const { api } = this;
+    const {api} = this;
     try {
       const response = await api.post(
         `/account`,
-        { metadata },
+        {metadata},
         {
           headers: {
-            token: `${await this.tokens.get("token")}`
-          }
-        }
+            Authorization: `${await this.tokens.get('token')}`,
+          },
+        },
       );
-      await this.storage.write("ACCOUNT_INFOS", response.data.account);
+      //await this.storage.write("ACCOUNT_INFOS", response.data.account);
       return response.data;
-    } catch (error) { return handleResponseError(error) }
-
+    } catch (error) {
+      return handleResponseError(error);
+    }
   }
 
   async updateRelation(data) {
     // Do all things on local and emit
-    this.io.emit("relation", data);
+    this.io.emit('relation', data);
   }
 
   // others methods would be better to call them outside mobile app
@@ -133,20 +128,21 @@ class HomeClient {
    *
    */
   async update(entityType, entityParams) {
-    const { api } = this;
+    const {api} = this;
     try {
       const response = await api.patch(
         `/account/${entityType}/${entityParams._id}`,
         entityParams,
         {
           headers: {
-            token: `${await this.tokens.get("token")}`
-          }
-        }
+            Authorization: `${await this.tokens.get('token')}`,
+          },
+        },
       );
       return response.data;
-    } catch (error) { return handleResponseError(error) }
-
+    } catch (error) {
+      return handleResponseError(error);
+    }
   }
 
   /**
@@ -154,20 +150,18 @@ class HomeClient {
    *
    */
   async delete(entityType, entityId) {
-    const { api } = this;
+    const {api} = this;
     try {
       const response = await api.delete(
         `/account/${entityType}/${entityId}`,
         {},
         {
           headers: {
-            token: `${await this.tokens.get("token")}`
-          }
-        }
+            Authorization: `${await this.tokens.get('token')}`,
+          },
+        },
       );
       return response.data;
-      console.log(response.data);
-
     } catch (error) {
       return handleResponseError(error);
     }

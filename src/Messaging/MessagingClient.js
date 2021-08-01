@@ -42,7 +42,7 @@ class MessagingClient {
       {},
       {
         headers: {
-          token: `${await this.tokens.get("token")}`
+          Authorization: `${await this.tokens.get('token')}`,
         }
       }
     );

@@ -1,8 +1,6 @@
 function handleResponseError(response) {
   if (response.ok) {
-    return response;
-    console.log(response);
-    
+    return response;    
   }
   const error = new Error();
   if (response.data) {
@@ -15,7 +13,7 @@ function handleResponseError(response) {
   error.response = response;
   // console.log(error.response);
   //throw error;
-  return error;
+  return {error: true, data : error};
 }
 
 export default handleResponseError;

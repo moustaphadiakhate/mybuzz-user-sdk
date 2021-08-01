@@ -1,9 +1,9 @@
-import { create } from "apisauce";
-import { pick } from "lodash";
-import { omit } from "lodash/omit";
-import LibPhoneNumber from "google-libphonenumber";
-import DefaultIO from "socket.io-client";
-import handleResponseError from "../utils/handleResponseError";
+import {create} from 'apisauce';
+import {pick} from 'lodash';
+import {omit} from 'lodash/omit';
+import LibPhoneNumber from 'google-libphonenumber';
+import DefaultIO from 'socket.io-client';
+import handleResponseError from '../utils/handleResponseError';
 
 const phoneUtil = LibPhoneNumber.PhoneNumberUtil.getInstance();
 const PNF = LibPhoneNumber.PhoneNumberFormat;
@@ -15,7 +15,7 @@ class AuthClient {
    * @param {Object} options - client options
    * @memberof AuthClient
    */
-  constructor(endpoint, { tokens, io, storage, uuid }) {
+  constructor(endpoint, {tokens, io, storage, uuid}) {
     this.endpoint = endpoint;
     this.tokens = tokens;
     this.uuid = uuid;
@@ -24,7 +24,7 @@ class AuthClient {
     this.storage = storage;
     this.io = io.Client(`${endpoint}/auth`) || DefaultIO(`${endpoint}/auth`);
     this.api = create({
-      baseURL: `${endpoint}/auth`
+      baseURL: `${endpoint}/auth`,
     });
 
     this.loadMBR();
@@ -36,10 +36,10 @@ class AuthClient {
    */
 
   async loadMBR() {
-    this.MBR = await this.storage.read("AUTH_CLIENT");
+    this.MBR = await this.storage.read('AUTH_CLIENT');
     if (!this.MBR) {
       this.MBR = this.uuid();
-      await this.storage.write("AUTH_CLIENT", this.MBR);
+      await this.storage.write('AUTH_CLIENT', this.MBR);
     }
   }
 
@@ -51,7 +51,7 @@ class AuthClient {
   async updateMBR(newOne) {
     // omit password before
     Object.assign(this.MBR, newOne);
-    await this.storage.write("AUTH_CLIENT", this.MBR);
+    await this.storage.write('AUTH_CLIENT', this.MBR);
   }
 
   /**
@@ -60,20 +60,22 @@ class AuthClient {
    */
 
   async create(entityType, entityParams) {
-    const { api } = this;
+    const {api} = this;
     try {
       const response = await api.post(`/${entityType}`, entityParams);
-      const result = response.data;
-      if (result.tokens) {
-        const tokenInfos = pick(result.tokens, [
-          "token",
-          "expiresIn",
-          "refreshToken"
+      const results = response.data;
+      if (response.ok && results.tokens) {
+        const tokenInfos = pick(results.tokens, [
+          'token',
+          'expiresIn',
+          'refreshToken',
         ]);
-        this.tokens.put("ACCOUNT_VERIFICATION", tokenInfos);
+        this.tokens.put(tokenInfos);
       }
-      return result;
-    } catch (error) { return handleResponseError(error) }
+      return results;
+    } catch (error) {
+      return handleResponseError(error);
+    }
   }
 
   /**
@@ -83,7 +85,7 @@ class AuthClient {
    */
   async sendMeOtp(authData) {
     return new Promise((resolve, reject) => {
-      this.io.emit("sendMeOtp", authData, async function (response) {
+      this.io.emit('sendMeOtp', authData, async function(response) {
         resolve(response);
       });
     });
@@ -91,14 +93,14 @@ class AuthClient {
 
   async checkUsername(username) {
     return new Promise((resolve, reject) => {
-      this.io.emit("checkusername", username, async function (response) {
+      this.io.emit('checkusername', username, async function(response) {
         resolve(response);
       });
     });
   }
 
   async isLoggedIn() {
-    return !!(await this.tokens.get("token"));
+    return !!(await this.tokens.get('token'));
   }
 
   async disconnect() {
@@ -110,7 +112,6 @@ class AuthClient {
     this.api.setBaseURL(`${endpoint}/auth`);
   }
 
-  
   async save(key, val) {
     await this.storage.write(key, val);
   }
